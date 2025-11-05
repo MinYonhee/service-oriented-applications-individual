@@ -22,5 +22,4 @@ app.get('/', (req, res) => {
   res.send('API online 🚀');
 });
 
-// exporta o app (Vercel precisa disso)
-export default app;
+export default serverless(app);
