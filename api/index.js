@@ -64,4 +64,11 @@ app.use((err, req, res, next) => {
 });
 
 // === EXPORTA PARA O VERCEL (OBRIGATÓRIO) ===
-export const handler = serverless(app);
+// O Vercel espera uma exportação default para funções em `api/`.
+// Usar `export default serverless(app)` garante que a função seja
+// invocada corretamente e evita que o conteúdo estático (index.html)
+// seja servido no lugar da resposta da API.
+export default serverless(app);
+
+// Exporta o app também para facilitar testes locais (ex: dev-server)
+export { app };
