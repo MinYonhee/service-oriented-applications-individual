@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import serverless from 'serverless-http'; // ✅ Importa o adaptador
 import db from './db/index.js'; // garante a conexão com o banco
 
 // importa as rotas
@@ -23,4 +24,4 @@ app.get('/', (req, res) => {
 });
 
 // ⚠️ Não usa serverless(app) nem app.listen()
-export default app;
+export default serverless(app);
