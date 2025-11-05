@@ -12,13 +12,11 @@ const app = express();
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('API online 🚀');
+  res.send('API online');
 });
 
-// rotas principais
 app.use('/curriculos', curriculosRoutes);
 app.use('/experiencias', experienciasRoutes);
 app.use('/formacoes', formacoesRoutes);
 
-// 🔥 ESSA É A LINHA QUE FAZ A VERCEL FUNCIONAR:
 export const handler = serverless(app);
