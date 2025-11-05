@@ -1,20 +1,24 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import serverless from 'serverless-http';
-import './db/index.js';
 
-import routes from './routes/index.js';
+import curriculosRoutes from './routes/curriculos.js';
+import experienciasRoutes from './routes/experiencias.js';
+import formacoesRoutes from './routes/formacoes.js';
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 
-// rotas centralizadas
-app.use('/', routes);
-
 app.get('/', (req, res) => {
   res.send('API online 🚀');
 });
 
-export default serverless(app);
+// rotas principais
+app.use('/curriculos', curriculosRoutes);
+app.use('/experiencias', experienciasRoutes);
+app.use('/formacoes', formacoesRoutes);
+
+// 🔥 ESSA É A LINHA QUE FAZ A VERCEL FUNCIONAR:
+export const handler = serverless(app);
