@@ -18,12 +18,6 @@ app.use('/curriculos', curriculosRoutes);
 app.use('/experiencias', experienciasRoutes);
 app.use('/formacoes', formacoesRoutes);
 
-
-app.get('/', (req, res) => {
-    res.send('API de Currículos (Refatorada para ESM) está rodando. Use /curriculos para acessar os dados.');
-});
-
 app.listen(port, () => {
     console.log(`Servidor Express rodando na porta ${port}`);
 });
-
