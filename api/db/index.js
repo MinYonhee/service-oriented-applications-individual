@@ -1,25 +1,40 @@
-import { Pool } from 'pg';
+// Usando ES Modules (import)
+import pg from 'pg';
 import dotenv from 'dotenv';
 
-dotenv.config();
-
-const connectionString = process.env.POSTGRES_URL;
-
-if (!connectionString) {
-    console.error("ATENÇÃO: A variável DATABASE_URL não está configurada no .env.");
-    console.error("Use a URL de conexão do Neon (ou outro PG) para a API funcionar.");
+// Carrega variáveis de ambiente (só em desenvolvimento)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
 }
 
-const db = new Pool({
-    connectionString: connectionString,
-    ssl: {
-        rejectUnauthorized: false 
-    }
+// Padronizando para DATABASE_URL, que é o padrão do Vercel/Neon
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error("ERRO: DATABASE_URL não está configurada.");
+  console.error("No .env local ou nas Environment Variables do Vercel,");
+  console.error("adicione sua string de conexão do PostgreSQL (ex: Neon).");
+}
+
+// Configura o pool.
+// O SSL é necessário para conexões remotas como Neon/Vercel Postgres.
+const pool = new pg.Pool({
+  connectionString: connectionString,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });
 
-db.connect()
-    .then(() => console.log('Conexão com PostgreSQL (Neon) estabelecida com sucesso!'))
-    .catch(err => console.error('Erro ao conectar ao PostgreSQL. Verifique sua DATABASE_URL no .env:', err.message));
+// NÃO precisamos de .connect() aqui. O Pool faz isso sob demanda.
 
+// Exportamos um objeto com o método query
+const db = {
+  query: (text, params) => {
+    if (!connectionString) {
+      console.error("Tentativa de query sem DATABASE_URL. A API falhará.");
+      throw new Error("DATABASE_URL não configurada.");
+    }
+    return pool.query(text, params);
+  },
+};
+
+// Exportação padrão do ESM
 export default db;
-
