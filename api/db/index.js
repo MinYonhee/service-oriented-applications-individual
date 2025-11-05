@@ -1,19 +1,19 @@
-// Em api/db/index.js (CORRIGIDO)
-import pg from 'pg';
+// api/db/index.js (CORRIGIDO)
+
+import pg from '@neondatabase/serverless'; // Mantenha este pacote, ele corrige o timeout!
 import dotenv from 'dotenv';
 
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
 }
 
-const connectionString = process.env.DATABASE_URL;
+// [MUDANÇA AQUI]
+const connectionString = process.env.POSTGRES_URL;
 
 if (!connectionString) {
-  console.error("ERRO: DATABASE_URL não está configurada.");
+  console.error("ERRO: POSTGRES_URL não está configurada."); // [MUDANÇA AQUI]
 }
 
-// O Neon SEMPRE precisa de SSL, tanto local quanto em produção.
-// A string de conexão já tem "sslmode=require", mas é bom garantir.
 const pool = new pg.Pool({
   connectionString: connectionString,
   ssl: {
@@ -24,8 +24,8 @@ const pool = new pg.Pool({
 const db = {
   query: (text, params) => {
     if (!connectionString) {
-      console.error("Tentativa de query sem DATABASE_URL. A API falhará.");
-      throw new Error("DATABASE_URL não configurada.");
+      console.error("Tentativa de query sem POSTGRES_URL. A API falhará."); // [MUDANÇA AQUI]
+      throw new Error("POSTGRES_URL não configurada."); // [MUDANÇA AQUI]
     }
     return pool.query(text, params);
   },
