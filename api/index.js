@@ -22,4 +22,5 @@ app.get('/', (req, res) => {
   res.send('API online 🚀');
 });
 
-export default serverless(app);
+// ⚠️ Não usa serverless(app) nem app.listen()
+export default app;
