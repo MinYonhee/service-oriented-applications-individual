@@ -18,6 +18,4 @@ app.use('/curriculos', curriculosRoutes);
 app.use('/experiencias', experienciasRoutes);
 app.use('/formacoes', formacoesRoutes);
 
-app.listen(port, () => {
-    console.log(`Servidor Express rodando na porta ${port}`);
-});
+export default app;
