@@ -1,22 +1,67 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import serverless from 'serverless-http';
+// api/index.js
+import "dotenv/config";
+import cors from "cors";
+import express from "express";
+import serverless from "serverless-http";
 
-import curriculosRoutes from './routes/curriculos.js';
-import experienciasRoutes from './routes/experiencias.js';
-import formacoesRoutes from './routes/formacoes.js';
+// === IMPORTA O BANCO (Pool do pg) ===
+import db from "./db/index.js";
 
-dotenv.config();
+// === IMPORTA AS ROTAS ===
+import curriculosRoutes from "./routes/curriculos.js";
+import experienciasRoutes from "./routes/experiencias.js";
+import formacoesRoutes from "./routes/formacoes.js";
 
+// === CRIA A APLICAÇÃO EXPRESS ===
 const app = express();
-app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('API online');
+// === CONFIGURAÇÕES GLOBAIS ===
+app.set("trust proxy", true);
+
+// CORS: permite qualquer origem (mude em produção)
+app.use(cors({ origin: "*" }));
+
+// Log de requisições (aparece no Vercel Dashboard)
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} | ${req.method} ${req.originalUrl} | IP: ${req.ip}`);
+  next();
 });
 
-app.use('/curriculos', curriculosRoutes);
-app.use('/experiencias', experienciasRoutes);
-app.use('/formacoes', formacoesRoutes);
+// Body parsers
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// === INJETA O BANCO EM TODAS AS ROTAS (req.db) ===
+app.use((req, res, next) => {
+  req.db = db;
+  next();
+});
+
+// === ROTA RAIZ ===
+app.get("/", (req, res) => {
+  res.status(200).json({
+    message: "API de Currículos Online",
+    status: "OK",
+    database: "conectado",
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      curriculos: "/curriculos",
+      experiencias: "/experiencias",
+      formacoes: "/formacoes"
+    }
+  });
+});
+
+// === MONTA AS ROTAS ===
+app.use("/curriculos", curriculosRoutes);
+app.use("/experiencias", experienciasRoutes);
+app.use("/formacoes", formacoesRoutes);
+
+// === TRATAMENTO GLOBAL DE ERROS (opcional, mas recomendado) ===
+app.use((err, req, res, next) => {
+  console.error("Erro não tratado:", err);
+  res.status(500).json({ error: "Erro interno do servidor" });
+});
+
+// === EXPORTA PARA O VERCEL (OBRIGATÓRIO) ===
 export const handler = serverless(app);
