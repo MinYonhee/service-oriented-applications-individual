@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.POSTGRE_URL;
 
 if (!connectionString) {
     console.error("ATENÇÃO: A variável DATABASE_URL não está configurada no .env.");
