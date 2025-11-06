@@ -52,12 +52,15 @@ app.get("/", (req, res) => {
   });
 });
 
-// === MONTA AS ROTAS ===
+app.get('/_health', (req, res) => {
+  res.status(200).json({ ok: true, timestamp: new Date().toISOString() });
+});
+
+
 app.use("/curriculos", curriculosRoutes);
 app.use("/experiencias", experienciasRoutes);
 app.use("/formacoes", formacoesRoutes);
 
-// === TRATAMENTO GLOBAL DE ERROS (opcional, mas recomendado) ===
 app.use((err, req, res, next) => {
   console.error("Erro não tratado:", err);
   res.status(500).json({ error: "Erro interno do servidor" });
