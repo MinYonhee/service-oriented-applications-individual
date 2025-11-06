@@ -1,38 +1,26 @@
-import { Pool } from '@neondatabase/serverless';
-import dotenv from 'dotenv';
-
-if (process.env.NODE_ENV !== 'production') {
-  dotenv.config();
-}
+// api/db/index.js
+import { neon } from '@neondatabase/serverless';
 
 const connectionString = process.env.POSTGRES_URL;
+if (!connectionString) throw new Error("POSTGRES_URL não configurada");
 
-if (!connectionString) {
-  console.error("ERRO: POSTGRES_URL não está configurada.");
+// 🔹 Cria cliente global (evita recriar em cada request)
+const sql = globalThis._neonSql ?? neon(connectionString);
+
+if (!globalThis._neonSql) {
+  globalThis._neonSql = sql;
+  console.log("✅ Conexão Neon (serverless) inicializada");
 }
 
-let pool;
-
-if (!globalThis._pool) {
-  globalThis._pool = new Pool({
-    connectionString,
-    ssl: { rejectUnauthorized: false },
-  });
-  console.log("✅ Novo pool criado");
-}
-
-pool = globalThis._pool;
-
-const db = {
+// 🔹 Exporta função compatível com req.db.query
+export default {
   query: async (text, params) => {
     try {
-      const result = await pool.query(text, params);
-      return result;
+      const result = await sql(text, params);
+      return { rows: result };
     } catch (err) {
-      console.error("Erro na query:", err);
+      console.error("Erro na query:", err.message);
       throw err;
     }
   },
 };
-
-export default db;
