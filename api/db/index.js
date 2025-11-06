@@ -1,31 +1,38 @@
-import { Pool } from '@neondatabase/serverless'; // [CORREÇÃO 1]
+import { Pool } from '@neondatabase/serverless';
 import dotenv from 'dotenv';
 
 if (process.env.NODE_ENV !== 'production') {
-  dotenv.config();
+  dotenv.config();
 }
 
 const connectionString = process.env.POSTGRES_URL;
 
 if (!connectionString) {
-  console.error("ERRO: POSTGRES_URL não está configurada.");
+  console.error("ERRO: POSTGRES_URL não está configurada.");
 }
 
-const pool = new Pool({
-  connectionString: connectionString,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+let pool;
+
+if (!globalThis._pool) {
+  globalThis._pool = new Pool({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+  });
+  console.log("✅ Novo pool criado");
+}
+
+pool = globalThis._pool;
 
 const db = {
-  query: (text, params) => {
-    if (!connectionString) {
-      console.error("Tentativa de query sem POSTGRES_URL. A API falhará.");
-      throw new Error("POSTGRES_URL não configurada.");
-    }
-    return pool.query(text, params);
-  },
+  query: async (text, params) => {
+    try {
+      const result = await pool.query(text, params);
+      return result;
+    } catch (err) {
+      console.error("Erro na query:", err);
+      throw err;
+    }
+  },
 };
 
 export default db;
