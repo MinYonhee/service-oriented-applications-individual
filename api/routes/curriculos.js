@@ -92,8 +92,8 @@ router.put('/:id', async (req, res) => {
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Currículo não encontrado para atualização.' });
         }
-        res.status(200).json(result.rows[0]);
-  A  } catch (err) {
+        res.status(200).json(result.rows[0]);
+    } catch (err) {
         console.error("Erro PUT /curriculos/:id:", err);
         if (err.code === '23505') {
             return res.status(409).json({ error: 'Erro: Este email já está cadastrado em outro currículo.' });
