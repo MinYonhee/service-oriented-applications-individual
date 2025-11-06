@@ -22,10 +22,8 @@ if (!connectionString) {
 
 const db = new Pool({
     connectionString: connectionString,
-    ssl: {
-        rejectUnauthorized: false // Necessário para Neon
     }
-});
+);
 
 // Função principal que executa o setup
 async function setupDatabase() {
